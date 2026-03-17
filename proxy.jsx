@@ -10,3 +10,8 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+
+// Multi-Vendor E-Commerce Platform | Next.js, PostgreSQL, Stripe, Vercel Built a full-stack multi-vendor e-commerce web app with user authentication (Clerk), vendor store management, admin dashboard, subscription billing, and Stripe payments. Implemented background jobs (Innget), cloud image storage (ImageKit), and deployed on Vercel for live access.
+
+
+// Full-Stack-AI-Multi-Vender-E-comerece-project-next.js-
