@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma";
 import { inngest } from "./client";
 
-// Inngest function to save user data to a database
+// Update the event name to match Clerk's standard output
 export const syncUserCreation = inngest.createFunction(
     { 
         id: 'sync-user-create',
-        event: 'clerk/user.created' // Move event here
+        event: 'user.created' // Changed: removed clerk/
     },
     async ({ event }) => {
         const { data } = event;
@@ -20,11 +20,10 @@ export const syncUserCreation = inngest.createFunction(
     }
 );
 
-// Inngest function to update user data in database
 export const syncUserUpdation = inngest.createFunction(
     { 
         id: 'sync-user-update',
-        event: 'clerk/user.updated' // Move event here
+        event: 'user.updated' // Changed: removed clerk/
     },
     async ({ event }) => {
         const { data } = event;
@@ -39,11 +38,10 @@ export const syncUserUpdation = inngest.createFunction(
     }
 );
 
-// Inngest function to delete user from database
 export const syncUserDeletion = inngest.createFunction(
     { 
         id: 'sync-user-delete',
-        event: 'clerk/user.deleted' // Move event here
+        event: 'user.deleted' // Changed: removed clerk/
     },
     async ({ event }) => {
         const { data } = event;
