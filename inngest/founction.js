@@ -6,9 +6,9 @@ import { inngest } from "./client";
  */
 export const syncUserCreation = inngest.createFunction(
   {
-    id: "user-created",
+    id: "sync-user-creation",
     retries: 2,
-    triggers: [{ event: "user.created" }], // ✅ moved here
+    triggers: [{ event: "clerk/user.created" }], // moved here
   },
   async ({ event, step }) => {
     const { id, name, email, image } = event.data;
@@ -32,13 +32,13 @@ export const syncUserCreation = inngest.createFunction(
 );
 
 /**
- * ✅ USER UPDATED
+ * USER UPDATED
  */
 export const syncUserUpdation = inngest.createFunction(
   {
-    id: "user-updated",
+    id: "sync-user-updation",
     retries: 2,
-    triggers: [{ event: "user.updated" }], // ✅ FIXED
+    triggers: [{ event: "clerk/user.updated" }],
   },
   async ({ event, step }) => {
     const { id, name, email, image } = event.data;
@@ -59,13 +59,13 @@ export const syncUserUpdation = inngest.createFunction(
 );
 
 /**
- * ✅ USER DELETED
+ * USER DELETED
  */
 export const syncUserDeletion = inngest.createFunction(
   {
-    id: "user-deleted",
+    id: "sync-user-deletion",
     retries: 1,
-    triggers: [{ event: "user.deleted" }], // ✅ FIXED
+    triggers: [{ event: "clerk/user.deleted" }], //  FIXED
   },
   async ({ event, step }) => {
     const { id } = event.data;
