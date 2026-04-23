@@ -5,12 +5,14 @@ import { inngest } from "./client";
  * ✅ USER CREATED
  */
 export const syncUserCreation = inngest.createFunction(
-  { id: "sync-user-creation", retries: 2 }, // Configuration object
-  { event: "clerk/user.created" },          // Trigger object
-  async ({ event, step }) => {              // Handler function
+  { 
+    id: "sync-user-creation", 
+    retries: 2,
+    triggers: [{ event: "clerk/user.created" }] // Triggers go INSIDE the first object
+  },
+  async ({ event, step }) => { // Handler is the SECOND argument
     const { id, first_name, last_name, email_addresses, image_url } = event.data;
     
-    // Map Clerk data to your Prisma Model fields
     const email = email_addresses?.[0]?.email_address;
     const fullName = `${first_name ?? ""} ${last_name ?? ""}`.trim() || "New User";
 
@@ -24,10 +26,10 @@ export const syncUserCreation = inngest.createFunction(
         },
         create: {
           id,
-          name: fullName, // Guaranteed string to satisfy Prisma
+          name: fullName,
           email: email,
           image: image_url ?? "",
-          cart: {},       // Matches your Json @default("{}")
+          cart: {},
         },
       });
     });
@@ -40,8 +42,11 @@ export const syncUserCreation = inngest.createFunction(
  * ✅ USER UPDATED
  */
 export const syncUserUpdation = inngest.createFunction(
-  { id: "sync-user-updation", retries: 2 },
-  { event: "clerk/user.updated" },
+  { 
+    id: "sync-user-updation", 
+    retries: 2,
+    triggers: [{ event: "clerk/user.updated" }] 
+  },
   async ({ event, step }) => {
     const { id, first_name, last_name, email_addresses, image_url } = event.data;
     
@@ -67,8 +72,11 @@ export const syncUserUpdation = inngest.createFunction(
  * ✅ USER DELETED
  */
 export const syncUserDeletion = inngest.createFunction(
-  { id: "sync-user-deletion", retries: 1 },
-  { event: "clerk/user.deleted" },
+  { 
+    id: "sync-user-deletion", 
+    retries: 1,
+    triggers: [{ event: "clerk/user.deleted" }] 
+  },
   async ({ event, step }) => {
     const { id } = event.data;
 
@@ -76,7 +84,7 @@ export const syncUserDeletion = inngest.createFunction(
       if (!id) return;
       return await prisma.user.delete({
         where: { id },
-      }).catch(() => null); // Prevents crash if user was already deleted
+      }).catch(() => null);
     });
 
     return { success: true };
