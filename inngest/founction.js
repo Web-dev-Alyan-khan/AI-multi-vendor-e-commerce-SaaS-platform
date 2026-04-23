@@ -1,58 +1,81 @@
 import { prisma } from "@/prisma/db";
 import { inngest } from "./client";
 
-// Inngest function to save user data to a database on creation
+/**
+ * ✅ USER CREATED
+ */
 export const syncUserCreation = inngest.createFunction(
-    { id: "sync-user-creation", triggers: [{ event: "clerk/user.created" }] },
-    async ({ event, step }) => {
-        const { id, first_name, last_name, email_addresses, image_url } = event.data;
-        const email = email_addresses[0]?.email_address;
-        const name = `${first_name} ${last_name}`.trim();
+  {
+    id: "user-created",
+    retries: 2, // ✅ v4 feature (important)
+  },
+  { event: "user.created" },
+  async ({ event, step }) => {
+    const { id, name, email, image } = event.data;
 
-        await step.run("save-user-to-db", async () => {
-            return await prisma.user.create({
-                data: {
-                    id: id,
-                    name: name,
-                    email: email,
-                    image: image_url,
-                }
-            });
-        });
-    }
+    await step.run("create-user-in-db", async () => {
+      await prisma.user.upsert({
+        where: { id },
+        update: {},
+        create: {
+          id,
+          name,
+          email,
+          image: image ?? "",
+          cart: {},
+        },
+      });
+    });
+
+    return { success: true };
+  }
 );
 
-// Inngest function to update user data
+/**
+ * ✅ USER UPDATED
+ */
 export const syncUserUpdation = inngest.createFunction(
-    { id: "sync-user-updation", triggers: [{ event: "clerk/user.updated" }] },
-    async ({ event, step }) => {
-        const { id, first_name, last_name, email_addresses, image_url } = event.data;
-        const email = email_addresses[0]?.email_address;
-        const name = `${first_name} ${last_name}`.trim();
+  {
+    id: "user-updated",
+    retries: 2,
+  },
+  { event: "user.updated" },
+  async ({ event, step }) => {
+    const { id, name, email, image } = event.data;
 
-        await step.run("update-user-in-db", async () => {
-            return await prisma.user.update({
-                where: { id: id },
-                data: {
-                    name: name,
-                    email: email,
-                    image: image_url,
-                }
-            });
-        });
-    }
+    await step.run("update-user-in-db", async () => {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          ...(name && { name }),
+          ...(email && { email }),
+          ...(image && { image }),
+        },
+      });
+    });
+
+    return { success: true };
+  }
 );
 
-// Inngest function to delete user data
+/**
+ * ✅ USER DELETED
+ */
 export const syncUserDeletion = inngest.createFunction(
-    { id: "sync-user-deletion", triggers: [{ event: "clerk/user.deleted" }] },
-    async ({ event, step }) => {
-        const { id } = event.data;
+  {
+    id: "user-deleted",
+    retries: 1,
+  },
+  { event: "user.deleted" },
+  async ({ event, step }) => {
+    const { id } = event.data;
 
-        await step.run("delete-user-from-db", async () => {
-            return await prisma.user.delete({
-                where: { id: id }
-            });
-        });
-    }
+    await step.run("delete-user-from-db", async () => {
+      await prisma.user.delete({
+        where: { id },
+      }).catch(() => null); // ✅ safe delete
+    });
+
+    return { success: true };
+  }
 );
