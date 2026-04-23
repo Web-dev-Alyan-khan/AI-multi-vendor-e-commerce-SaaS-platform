@@ -2,18 +2,18 @@ import { prisma } from "@/prisma/db";
 import { inngest } from "./client";
 
 /**
- * ✅ USER CREATED
+ *  USER CREATED
  */
 export const syncUserCreation = inngest.createFunction(
   {
     id: "user-created",
-    retries: 2, // ✅ v4 feature (important)
+    retries: 2,
+    triggers: [{ event: "user.created" }], // ✅ moved here
   },
-  { event: "user.created" },
   async ({ event, step }) => {
     const { id, name, email, image } = event.data;
 
-    await step.run("create-user-in-db", async () => {
+    await step.run("create-user", async () => {
       await prisma.user.upsert({
         where: { id },
         update: {},
@@ -38,12 +38,12 @@ export const syncUserUpdation = inngest.createFunction(
   {
     id: "user-updated",
     retries: 2,
+    triggers: [{ event: "user.updated" }], // ✅ FIXED
   },
-  { event: "user.updated" },
   async ({ event, step }) => {
     const { id, name, email, image } = event.data;
 
-    await step.run("update-user-in-db", async () => {
+    await step.run("update-user", async () => {
       await prisma.user.update({
         where: { id },
         data: {
@@ -65,15 +65,15 @@ export const syncUserDeletion = inngest.createFunction(
   {
     id: "user-deleted",
     retries: 1,
+    triggers: [{ event: "user.deleted" }], // ✅ FIXED
   },
-  { event: "user.deleted" },
   async ({ event, step }) => {
     const { id } = event.data;
 
-    await step.run("delete-user-from-db", async () => {
+    await step.run("delete-user", async () => {
       await prisma.user.delete({
         where: { id },
-      }).catch(() => null); // ✅ safe delete
+      }).catch(() => null);
     });
 
     return { success: true };
