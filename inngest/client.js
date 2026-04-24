@@ -1,4 +1,4 @@
-
+// src/inngest/client.ts
 import { Inngest } from "inngest";
 
-export const inngest = new Inngest({ id: "A-Multi Vendor E-Comerece Platform" });
+export const inngest = new Inngest({ id: "AI-Multi Vendor Platform" });
