@@ -1,12 +1,14 @@
+import { prisma } from "@/lib/db";
 import { inngest } from "./client";
 
 
 
 //Inngest Founction to save user data to a database
-
 export const syncUserCreation = inngest.createFunction(
-  { id: "user-create" },
-  { event: "clerk/user.created" },
+  {
+    id: "user-create",
+    triggers: [{ event: "clerk/user.created" }],
+  },
   async ({ event }) => {
     const user = event.data;
 
@@ -22,7 +24,7 @@ export const syncUserCreation = inngest.createFunction(
         name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
         email: user.email_addresses?.[0]?.email_address || "",
         image: user.image_url || "",
-        cart: {}, // matches your schema
+        cart: {},
       },
     });
 
@@ -31,8 +33,10 @@ export const syncUserCreation = inngest.createFunction(
 );
 //Inngest Founction to update user data to a database
 export const syncUserUpdation = inngest.createFunction(
-  { id: "user-update" },
-  { event: "clerk/user.updated" },
+  {
+    id: "user-update",
+    triggers: [{ event: "clerk/user.updated" }],
+  },
   async ({ event }) => {
     const user = event.data;
 
@@ -48,11 +52,12 @@ export const syncUserUpdation = inngest.createFunction(
     return { ok: true };
   }
 );
-
 //Inngest Founction to delete user  to a database
 export const syncUserDeletion = inngest.createFunction(
-  { id: "user-delete" },
-  { event: "clerk/user.deleted" },
+  {
+    id: "user-delete",
+    triggers: [{ event: "clerk/user.deleted" }],
+  },
   async ({ event }) => {
     const user = event.data;
 
