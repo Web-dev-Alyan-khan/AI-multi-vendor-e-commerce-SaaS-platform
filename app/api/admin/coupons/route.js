@@ -1,3 +1,4 @@
+import { inngest } from "@/inngest/client";
 import { prisma } from "@/lib/db";
 import authAdmin from "@/middleware/authAdmin";
 import { getAuth } from "@clerk/nextjs/server";
@@ -34,7 +35,7 @@ export async function POST(request) {
     }
 }
 
-//  Delete Coupon
+// ✅ Corrected DELETE method
 export async function DELETE(request) {
     try {
         const { userId } = getAuth(request);
@@ -49,13 +50,15 @@ export async function DELETE(request) {
             return NextResponse.json({ error: "Coupon code required" }, { status: 400 });
         }
 
-        // Use deleteMany to avoid P2025 errors if the record is missing
+        // 1. Delete from DB. 
+        // We use deleteMany so it doesn't crash if already gone.
         const result = await prisma.coupon.deleteMany({
             where: { 
                 code: code.toUpperCase() 
             }
         });
 
+        // 2. Check if something was actually deleted
         if (result.count === 0) {
             return NextResponse.json({ 
                 success: false, 
