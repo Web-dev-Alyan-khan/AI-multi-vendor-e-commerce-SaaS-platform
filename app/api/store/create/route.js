@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import imagekit from "@/configs/imageKit";
+import imagekit from "@/lib/imagekit";
 import { getAuth } from "@clerk/nextjs/server";
 
 export async function POST(request) {
