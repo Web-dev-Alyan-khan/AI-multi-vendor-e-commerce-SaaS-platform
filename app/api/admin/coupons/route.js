@@ -35,7 +35,7 @@ export async function POST(request) {
     }
 }
 
-// ✅ Corrected DELETE method
+//  Delete Coupon
 export async function DELETE(request) {
     try {
         const { userId } = getAuth(request);
@@ -50,15 +50,13 @@ export async function DELETE(request) {
             return NextResponse.json({ error: "Coupon code required" }, { status: 400 });
         }
 
-        // 1. Delete from DB. 
-        // We use deleteMany so it doesn't crash if already gone.
+        // Use deleteMany to avoid P2025 errors if the record is missing
         const result = await prisma.coupon.deleteMany({
             where: { 
                 code: code.toUpperCase() 
             }
-        });
+        })
 
-        // 2. Check if something was actually deleted
         if (result.count === 0) {
             return NextResponse.json({ 
                 success: false, 
